@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load dinero %}
+{% block titulo %}Mi cuenta · Suspiro Sureño{% endblock %}
+{% block cuerpo %}
+<div class="publico">
+  {% include "parciales/cabecera.html" %}
+  <main class="escena">
+    <section class="escena-foto foto-mias" role="img" aria-label="Galletas de avena"></section>
+    <section class="escena-texto">
+      <p class="kicker">Tu cuenta</p>
+      <h1>Mi cuenta</h1>
+      {% include "mensajes.html" %}
+      <dl class="datos-cuenta">
+        <div>
+          <dt>Nombre de usuario</dt>
+          <dd>{{ user.username }}</dd>
+        </div>
+        <div>
+          <dt>Nombre</dt>
+          <dd>{{ user.get_full_name|default:"Sin nombre" }}</dd>
+        </div>
+      </dl>
+
+      <details class="cambiar-clave" {% if form_clave.errors %}open{% endif %}>
+        <summary>Cambiar clave</summary>
+        <form method="post" class="formulario acceso">
+          {% csrf_token %}
+          {% for field in form_clave %}
+            <div class="campo">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              <div class="campo-clave">
+                {{ field }}
+                {% include "parciales/ver_clave.html" %}
+              </div>
+              {{ field.errors }}
+            </div>
+          {% endfor %}
+          <button class="boton" type="submit">Guardar</button>
+        </form>
+      </details>
+
+      {% if ultima %}
+        <div class="acciones">
+          <a class="boton" href="{% url 'cotizacion_detalle_mia' ultima.pk %}">Ver detalles de mi cotización</a>
+        </div>
+      {% endif %}
+
+      <p class="kicker bloque" id="cotizaciones">Cotizaciones</p>
+      <h2>Mis cotizaciones</h2>
+      {% if cotizaciones %}
+        <div class="tabla-scroll">
+          <table>
+            <thead><tr><th>N°</th><th>Fecha</th><th>Estado</th><th>Detalle</th><th>Total</th><th></th></tr></thead>
+            <tbody>
+              {% for cotizacion in cotizaciones %}
+                <tr>
+                  <td>{{ cotizacion.pk }}</td>
+                  <td>{{ cotizacion.fecha }}</td>
+                  <td><span class="badge {{ cotizacion.clase_estado }}">{{ cotizacion.estado }}</span></td>
+                  <td>
+                    {% for linea in cotizacion.lineas.all %}
+                      {{ linea.cantidad }} x {{ linea.producto.nombre }}{% if linea.formato %} ({{ linea.formato }}){% endif %}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td>{{ cotizacion.total|pesos }}</td>
+                  <td><a class="boton secundario" href="{% url 'cotizacion_detalle_mia' cotizacion.pk %}">Ver detalles</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="escena-bajada">Todavía no hay cotizaciones. Cuando guardes una desde el catálogo, va a aparecer aquí.</p>
+      {% endif %}
+
+      <p class="kicker bloque" id="pedidos">Pedidos</p>
+      <h2>Mis pedidos</h2>
+      {% if pedidos %}
+        <div class="tabla-scroll">
+          <table>
+            <thead><tr><th>N°</th><th>Entrega</th><th>Canal</th><th>Estado</th><th>Total</th><th>Saldo</th></tr></thead>
+            <tbody>
+              {% for pedido in pedidos %}
+                <tr>
+                  <td>{{ pedido.pk }}</td>
+                  <td>{{ pedido.fecha_entrega }}</td>
+                  <td>{{ pedido.canal_despacho }}</td>
+                  <td><span class="badge {{ pedido.clase_estado }}">{{ pedido.estado }}</span></td>
+                  <td>{{ pedido.monto_total|pesos }}</td>
+                  <td>{{ pedido.saldo|pesos }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="escena-bajada">Cuando una cotización tuya pase a pedido, lo vas a ver aquí.</p>
+      {% endif %}
+    </section>
+  </main>
+  {% include "parciales/pie.html" %}
+</div>
+{% endblock %}

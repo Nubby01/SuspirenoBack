@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "python manage.py migrate --noinput && python manage.py poblar",
+  "functions": {
+    "config/wsgi.py": {
+      "maxDuration": 60
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{% extends "panel/base.html" %}
+{% block contenido %}
+<p><a href="{% url 'pedidos' %}">← Volver a pedidos</a></p>
+<h1>Agregar pedido</h1>
+<p>Para encargos que llegan por WhatsApp y se registran a mano.</p>
+<form method="post" class="formulario tarjeta form-producto">
+  {% csrf_token %}
+  {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+  <div class="form-grid">
+    {% for field in form %}
+      <div class="campo {% if field.name == 'direccion' or field.name == 'formato' %}campo-ancho{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<p class="ayuda">{{ field.help_text }}</p>{% endif %}
+        {{ field.errors }}
+      </div>
+    {% endfor %}
+  </div>
+  <div class="acciones form-acciones">
+    <button class="boton" type="submit">Guardar pedido</button>
+    <a class="boton secundario" href="{% url 'pedidos' %}">Volver</a>
+  </div>
+</form>
+{% endblock %}

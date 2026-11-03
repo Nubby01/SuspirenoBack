@@ -1,0 +1,48 @@
+{% extends "panel/base.html" %}
+{% load dinero %}
+{% block contenido %}
+<div class="encabezado">
+  <h1>Productos</h1>
+  {% if user.es_administradora %}
+    <a class="boton" href="{% url 'producto_nuevo' %}">Nuevo producto</a>
+  {% endif %}
+</div>
+<form method="get" class="fila filtro-panel">
+  <input type="search" name="q" value="{{ q }}" placeholder="Filtrar por nombre" aria-label="Filtrar productos">
+  <select name="categoria" aria-label="Categoría">
+    <option value="">Todas las categorías</option>
+    {% for valor, etiqueta in categorias %}
+      <option value="{{ valor }}" {% if categoria == valor %}selected{% endif %}>{{ etiqueta }} ({{ valor }})</option>
+    {% endfor %}
+  </select>
+  <button class="boton secundario" type="submit">Filtrar</button>
+</form>
+<div class="tabla-scroll">
+  <table>
+    <thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Cotizado</th><th>Pedido</th><th></th></tr></thead>
+    <tbody>
+      {% for producto in productos %}
+        <tr>
+          <td>
+            {{ producto.nombre }}
+            {% if not producto.disponible %} <span class="badge cancelado">oculto</span>{% endif %}
+            {% if producto.sin_stock %} <span class="badge critico">Sin stock</span>{% endif %}
+          </td>
+          <td>{{ producto.get_categoria_display }}</td>
+          <td>{{ producto.precio|pesos }}</td>
+          <td>{{ producto.veces_cotizado }}</td>
+          <td>{{ producto.unidades_pedidas|default:0 }}</td>
+          <td class="acciones">
+            {% if user.es_administradora %}
+              <a class="boton cielo" href="{% url 'producto_editar' producto.pk %}">Editar</a>
+              <button type="button" class="boton arcilla" data-confirmar-eliminar data-url="{% url 'producto_eliminar' producto.pk %}" data-titulo="Eliminar producto" data-detalle="{{ producto.nombre }}">Eliminar</button>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6">No hay productos con ese filtro.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

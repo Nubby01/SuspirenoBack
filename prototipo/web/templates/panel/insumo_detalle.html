@@ -1,0 +1,45 @@
+{% extends "panel/base.html" %}
+{% load dinero %}
+{% block contenido %}
+<p><a href="{% url 'insumos' %}">← Volver a insumos</a></p>
+<h1>{{ insumo.nombre }}</h1>
+<p>
+  Stock {{ insumo.stock_actual|cantidad }} {{ insumo.unidad_medida }}.
+  Mínimo {{ insumo.stock_minimo|cantidad }} {{ insumo.unidad_medida }}.
+  {% if insumo.requiere_reposicion %}<span class="badge critico">Stock crítico</span>{% endif %}
+</p>
+{% if user.es_administradora %}
+  <div class="acciones">
+    <a class="boton cielo" href="{% url 'insumo_editar' insumo.pk %}">Editar</a>
+    <button type="button" class="boton arcilla" data-confirmar-eliminar data-url="{% url 'insumo_eliminar' insumo.pk %}" data-titulo="Eliminar insumo" data-detalle="{{ insumo.nombre }}">Eliminar</button>
+  </div>
+  <form method="post" action="{% url 'compra_registrar' insumo.pk %}" class="formulario tarjeta">
+    {% csrf_token %}
+    <h2>Registrar compra</h2>
+    {{ form.as_p }}
+    <button class="boton" type="submit">Sumar al stock</button>
+  </form>
+{% endif %}
+<h2>Historial de compras</h2>
+<ul class="lista">
+  {% for compra in compras %}
+    <li class="fila">
+      <span>{{ compra.nombre }} · {{ compra.proveedor }} · {{ compra.cantidad_comprada|cantidad }} {{ insumo.unidad_medida }} · {{ compra.precio_compra|pesos }}</span>
+      {% if compra.esta_por_vencer %}<span class="badge bajo">por vencer {{ compra.fecha_vencimiento }}</span>{% elif compra.fecha_vencimiento %}<span>{{ compra.fecha_vencimiento }}</span>{% endif %}
+    </li>
+  {% empty %}
+    <li>Todavía no hay compras de este insumo.</li>
+  {% endfor %}
+</ul>
+<h2>Historial de utilización</h2>
+<ul class="lista">
+  {% for uso in usos %}
+    <li class="fila">
+      <span>Pedido {{ uso.pedido_id }} · {{ uso.pedido.cotizacion.cliente.nombre }} · {{ uso.cantidad }} x {{ uso.producto.nombre }}</span>
+      <span>{{ uso.pedido.fecha_pedido }}</span>
+    </li>
+  {% empty %}
+    <li>Todavía no hay pedidos confirmados que hayan descontado este insumo.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

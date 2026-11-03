@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load dinero %}
+{% block titulo %}Mi cotización · Suspiro Sureño{% endblock %}
+{% block cuerpo %}
+<div class="publico">
+  {% include "parciales/cabecera.html" %}
+  <main class="escena">
+    <section class="escena-foto foto-cotiza" role="img" aria-label="Cupcake de frutilla"></section>
+    <section class="escena-texto">
+      <p class="kicker">Tu pedido</p>
+      <h1>Mi cotización</h1>
+      {% include "mensajes.html" %}
+      {% if not lineas %}
+        <p class="escena-bajada">Todavía no hay productos. Elige en el catálogo y vuelve aquí.</p>
+        <div class="acciones">
+          <a class="boton" href="{% url 'catalogo' %}">Ver el catálogo</a>
+          {% if ultima %}
+            <a class="boton secundario" href="{% url 'cotizacion_detalle_mia' ultima.pk %}">Ver detalles de mi cotización</a>
+          {% endif %}
+        </div>
+        <ul class="escena-notas">
+          <li><span>Alfajores</span><span>sabores y veganos</span></li>
+          <li><span>Rollos</span><span>dulces y salados</span></li>
+          <li><span>Tortas</span><span>por encargo</span></li>
+        </ul>
+      {% else %}
+        <ul class="lista">
+          {% for linea in lineas %}
+            <li class="fila">
+              {% if linea.producto.url_foto %}
+                <img class="miniatura" src="{{ linea.producto.url_foto }}" alt="">
+              {% endif %}
+              <span>{{ linea.producto.nombre }}{% if linea.formato %} · {{ linea.formato }}{% endif %}<br><small>{{ linea.precio|pesos }}</small></span>
+              <form method="post" action="{% url 'carrito_cambiar' linea.clave %}" class="cantidad">
+                {% csrf_token %}
+                <input type="number" name="cantidad" value="{{ linea.cantidad }}" min="0" max="100" aria-label="Cantidad">
+                <button class="boton secundario" type="submit">Actualizar</button>
+              </form>
+              <strong>{{ linea.subtotal|pesos }}</strong>
+            </li>
+          {% endfor %}
+          <li class="fila"><span>Total</span><strong>{{ total|pesos }}</strong></li>
+        </ul>
+        <form method="post" class="formulario acceso revelar">
+          {% csrf_token %}
+          <div class="campo">
+            <label for="{{ form.nombre.id_for_label }}">Tu nombre</label>
+            {{ form.nombre }}
+            {{ form.nombre.errors }}
+          </div>
+          <div class="campo">
+            <label for="{{ form.telefono.id_for_label }}">Teléfono</label>
+            {{ form.telefono }}
+            {{ form.telefono.errors }}
+          </div>
+          <div class="campo">
+            <label for="{{ form.direccion.id_for_label }}">Dirección</label>
+            {{ form.direccion }}
+            {{ form.direccion.errors }}
+          </div>
+          <button class="boton whatsapp" type="submit">Guardar cotización</button>
+        </form>
+      {% endif %}
+    </section>
+  </main>
+  {% include "parciales/pie.html" %}
+</div>
+{% endblock %}

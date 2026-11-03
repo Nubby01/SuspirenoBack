@@ -1,0 +1,31 @@
+{% extends "panel/base.html" %}
+{% load dinero %}
+{% block contenido %}
+<div class="encabezado">
+  <h1>Cotizaciones</h1>
+</div>
+<div class="tabla-scroll">
+  <table>
+    <thead><tr><th>N°</th><th>Fecha</th><th>Cliente</th><th>Estado</th><th>Total</th><th></th></tr></thead>
+    <tbody>
+      {% for cotizacion in cotizaciones %}
+        <tr>
+          <td><a href="{% url 'cotizacion_detalle' cotizacion.pk %}">{{ cotizacion.pk }}</a></td>
+          <td>{{ cotizacion.fecha }}</td>
+          <td>{{ cotizacion.cliente.nombre }}</td>
+          <td><span class="badge {{ cotizacion.clase_estado }}">{{ cotizacion.estado }}</span></td>
+          <td>{{ cotizacion.total|pesos }}</td>
+          <td class="acciones">
+            <a class="boton cielo" href="{% url 'cotizacion_editar' cotizacion.pk %}">Editar</a>
+            {% if user.es_administradora %}
+              <button type="button" class="boton arcilla" data-confirmar-eliminar data-url="{% url 'cotizacion_eliminar' cotizacion.pk %}" data-titulo="Eliminar cotización" data-detalle="cotización {{ cotizacion.pk }} de {{ cotizacion.cliente.nombre }}">Eliminar</button>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6">Aún no llegan cotizaciones desde el catálogo.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

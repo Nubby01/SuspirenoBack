@@ -1,0 +1,24 @@
+{% extends "panel/base.html" %}
+{% load dinero %}
+{% block contenido %}
+<p><a href="{% url 'pedidos' %}">← Volver a pedidos</a></p>
+<h1>Pedido {{ pedido.pk }}</h1>
+<p>{{ pedido.cotizacion.cliente.nombre }} · entrega {{ pedido.fecha_entrega }} · {{ pedido.canal_despacho }}</p>
+<p><span class="badge {{ pedido.clase_estado }}">{{ pedido.estado }}</span> Total {{ pedido.monto_total|pesos }} · abono {{ pedido.abono|pesos }} · saldo {{ pedido.saldo|pesos }}</p>
+<ul class="lista">
+  {% for linea in pedido.lineas.all %}
+    <li class="fila"><span>{{ linea.cantidad }} x {{ linea.producto.nombre }}{% if linea.formato %} ({{ linea.formato }}){% endif %}</span><span>{{ linea.subtotal|pesos }}</span></li>
+  {% endfor %}
+</ul>
+<div class="acciones">
+  <a class="boton cielo" href="{% url 'pedido_editar' pedido.pk %}">Editar</a>
+  <button type="button" class="boton arcilla" data-confirmar-eliminar data-url="{% url 'pedido_eliminar' pedido.pk %}" data-titulo="Eliminar pedido" data-detalle="pedido {{ pedido.pk }} de {{ pedido.cotizacion.cliente.nombre }}">Eliminar</button>
+  {% for estado in pedido.siguientes_estados %}
+    <form method="post" action="{% url 'pedido_estado' pedido.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="estado" value="{{ estado }}">
+      <button class="boton" type="submit">Pasar a {{ estado }}</button>
+    </form>
+  {% endfor %}
+</div>
+{% endblock %}

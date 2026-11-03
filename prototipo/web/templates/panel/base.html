@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titulo %}Panel · Suspiro Sureño{% endblock %}
+{% block cuerpo %}
+{% with n=request.resolver_match.url_name %}
+<div class="admin">
+  <aside class="admin-barra">
+    <div>
+      <div class="admin-marca">Suspiro Sureño</div>
+      <div>{{ user.get_full_name|default:user.username }}</div>
+    </div>
+    <nav>
+      <a href="{% url 'panel_cuenta' %}" {% if n == 'panel_cuenta' %}aria-current="page"{% endif %}>Mi cuenta</a>
+      <a href="{% url 'reportes' %}" {% if n == 'reportes' %}aria-current="page"{% endif %}>Reportes</a>
+      <a href="{% url 'pedidos' %}" {% if n == 'pedidos' or n == 'pedido_detalle' or n == 'pedido_editar' or n == 'pedido_eliminar' or n == 'pedido_estado' %}aria-current="page"{% endif %}>Pedidos</a>
+      {% if user.es_administradora %}
+        <a href="{% url 'pedido_nuevo' %}" {% if n == 'pedido_nuevo' %}aria-current="page"{% endif %}>Agregar pedido</a>
+      {% endif %}
+      <a href="{% url 'cotizaciones' %}" {% if n == 'cotizaciones' or n == 'cotizacion_detalle' or n == 'cotizacion_editar' or n == 'cotizacion_convertir' or n == 'cotizacion_eliminar' %}aria-current="page"{% endif %}>Cotizaciones</a>
+      <a href="{% url 'productos' %}" {% if 'producto' in n or 'receta' in n %}aria-current="page"{% endif %}>Productos</a>
+      <a href="{% url 'insumos' %}" {% if 'insumo' in n or n == 'compra_registrar' %}aria-current="page"{% endif %}>Insumos</a>
+      {% if user.es_administradora %}
+        <a href="{% url 'usuarios' %}" {% if n == 'usuarios' or n == 'usuario_editar' or n == 'usuario_eliminar' or n == 'usuario_crear_ayudante' %}aria-current="page"{% endif %}>Cuentas</a>
+      {% endif %}
+      <a href="{% url 'inicio' %}">Página principal</a>
+    </nav>
+    <div class="admin-usuario">
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button class="boton secundario" type="submit">Cerrar sesión</button>
+      </form>
+    </div>
+  </aside>
+  <div class="admin-cuerpo">
+    <div class="franja">
+      <div class="contenedor"><p class="kicker">Pastelería en Punta Arenas</p></div>
+    </div>
+    <main class="contenedor" id="inicio-panel">
+      {% include "mensajes.html" %}
+      {% block contenido %}{% endblock %}
+    </main>
+    {% include "parciales/pie.html" %}
+  </div>
+  {% include "parciales/subir.html" %}
+  {% include "parciales/modal_eliminar.html" %}
+</div>
+{% endwith %}
+{% endblock %}

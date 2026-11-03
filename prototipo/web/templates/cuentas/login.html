@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block titulo %}Ingresar · Suspiro Sureño{% endblock %}
+{% block cuerpo %}
+<div class="publico">
+  {% include "parciales/cabecera.html" %}
+  <main class="escena">
+    <section class="escena-foto foto-donas" role="img" aria-label="Donas de la pastelería"></section>
+    <section class="escena-texto">
+      <p class="kicker">Tu cuenta</p>
+      <h1>Ingresar</h1>
+      <p class="escena-bajada">Entra para ver las cotizaciones que quedaron a tu nombre.</p>
+      <form method="post" class="formulario acceso revelar">
+        {% csrf_token %}
+        {% include "mensajes.html" %}
+        <div class="campo">
+          <label for="{{ form.username.id_for_label }}">Nombre de usuario</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </div>
+        <div class="campo">
+          <label for="{{ form.password.id_for_label }}">Clave</label>
+          <div class="campo-clave">
+            {{ form.password }}
+            {% include "parciales/ver_clave.html" %}
+          </div>
+          {{ form.password.errors }}
+        </div>
+        {% if form.non_field_errors %}
+          {{ form.non_field_errors }}
+        {% endif %}
+        <div class="acciones">
+          <button class="boton" type="submit">Ingresar</button>
+          <a class="boton secundario" href="{% url 'registro' %}">Crear cuenta</a>
+        </div>
+      </form>
+    </section>
+  </main>
+  {% include "parciales/pie.html" %}
+</div>
+{% endblock %}

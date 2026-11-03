@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Suspiro Sureño{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/suspireno.css' %}?v=movil2">
+  <script>document.documentElement.classList.add("con-movimiento");</script>
+</head>
+<body>
+  {% block cuerpo %}{% endblock %}
+  {% block scripts %}{% endblock %}
+  <script>
+    (() => {
+      const masthead = document.querySelector("[data-masthead]");
+      const toggle = document.querySelector("[data-nav-toggle]");
+      const panel = document.querySelector("[data-nav-panel]");
+      if (masthead && toggle && panel) {
+        const cerrarNav = () => {
+          masthead.classList.remove("nav-abierto");
+          toggle.setAttribute("aria-expanded", "false");
+          toggle.textContent = "Menú";
+        };
+        toggle.addEventListener("click", () => {
+          const abierto = !masthead.classList.contains("nav-abierto");
+          masthead.classList.toggle("nav-abierto", abierto);
+          toggle.setAttribute("aria-expanded", abierto ? "true" : "false");
+          toggle.textContent = abierto ? "Cerrar" : "Menú";
+        });
+        panel.addEventListener("click", (evento) => {
+          if (evento.target.closest("a")) cerrarNav();
+        });
+        document.addEventListener("click", (evento) => {
+          if (!evento.target.closest("[data-masthead]")) cerrarNav();
+        });
+      }
+
+      const filtros = document.querySelector("[data-filtros]");
+      if (filtros) {
+        const escritorio = window.matchMedia("(min-width: 801px)");
+        const sincronizar = () => { filtros.open = escritorio.matches; };
+        sincronizar();
+        escritorio.addEventListener("change", sincronizar);
+      }
+    })();
+
+    document.addEventListener("toggle", (evento) => {
+      const abierto = evento.target;
+      if (!abierto.matches("[data-menu]")) return;
+      if (!abierto.open) {
+        abierto.querySelectorAll("details").forEach((interno) => { interno.open = false; });
+        return;
+      }
+      document.querySelectorAll("[data-menu]").forEach((otro) => {
+        if (otro !== abierto) otro.open = false;
+      });
+    });
+    document.addEventListener("click", (evento) => {
+      if (evento.target.closest("[data-menu]")) return;
+      document.querySelectorAll("[data-menu]").forEach((menu) => { menu.open = false; });
+    });
+    document.addEventListener("click", (evento) => {
+      const boton = evento.target.closest("[data-ver]");
+      if (!boton) return;
+      const input = boton.parentElement.querySelector("input");
+      if (!input) return;
+      const ocultar = input.type === "text";
+      input.type = ocultar ? "password" : "text";
+      boton.classList.toggle("abierto", !ocultar);
+      boton.setAttribute("aria-label", ocultar ? "Mostrar clave" : "Ocultar clave");
+    });
+
+    const revelar = document.querySelectorAll(".revelar");
+    if ("IntersectionObserver" in window && revelar.length) {
+      const observar = new IntersectionObserver((entradas) => {
+        entradas.forEach((entrada) => {
+          if (entrada.isIntersecting) {
+            entrada.target.classList.add("en-vista");
+            observar.unobserve(entrada.target);
+          }
+        });
+      }, { threshold: 0.16 });
+      revelar.forEach((nodo, indice) => {
+        nodo.style.transitionDelay = (indice % 4) * 70 + "ms";
+        observar.observe(nodo);
+      });
+    } else {
+      revelar.forEach((nodo) => nodo.classList.add("en-vista"));
+    }
+  </script>
+</body>
+</html>

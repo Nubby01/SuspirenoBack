@@ -1,0 +1,47 @@
+{% extends "panel/base.html" %}
+{% block contenido %}
+<div class="encabezado">
+  <h1>Mi cuenta</h1>
+</div>
+{% if obligar_clave %}
+  <p class="aviso">Tu cuenta tiene una clave provisoria. Debes cambiarla ahora para continuar en el panel.</p>
+{% else %}
+  <p>Datos de tu acceso al panel de la pastelería.</p>
+{% endif %}
+<dl class="datos-cuenta">
+  <div>
+    <dt>Nombre de usuario</dt>
+    <dd>{{ user.username }}</dd>
+  </div>
+  <div>
+    <dt>Nombre</dt>
+    <dd>{{ user.get_full_name|default:"Sin nombre" }}</dd>
+  </div>
+  <div>
+    <dt>Rol</dt>
+    <dd>{% if user.es_administradora %}Administradora{% else %}Ayudante{% endif %}</dd>
+  </div>
+</dl>
+
+<section class="tarjeta">
+  <h2>{% if obligar_clave %}Cambiar clave provisoria{% else %}Cambiar clave{% endif %}</h2>
+  <form method="post" class="formulario form-producto">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form_clave %}
+        <div class="campo">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <div class="campo-clave">
+            {{ field }}
+            {% include "parciales/ver_clave.html" %}
+          </div>
+          {{ field.errors }}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="acciones form-acciones">
+      <button class="boton" type="submit">Guardar</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

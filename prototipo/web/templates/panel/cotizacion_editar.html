@@ -1,0 +1,23 @@
+{% extends "panel/base.html" %}
+{% block contenido %}
+<p><a href="{{ volver }}">← Volver a la cotización</a></p>
+<h1>{{ titulo }}</h1>
+<p>Puedes actualizar los datos de contacto del cliente. Los productos de la cotización se mantienen.</p>
+<form method="post" class="formulario tarjeta form-producto">
+  {% csrf_token %}
+  {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+  <div class="form-grid">
+    {% for field in form %}
+      <div class="campo {% if field.name == 'direccion' %}campo-ancho{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {{ field.errors }}
+      </div>
+    {% endfor %}
+  </div>
+  <div class="acciones form-acciones">
+    <button class="boton" type="submit">Guardar</button>
+    <a class="boton secundario" href="{{ volver }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

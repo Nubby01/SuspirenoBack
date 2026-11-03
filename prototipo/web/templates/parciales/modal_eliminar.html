@@ -1,0 +1,43 @@
+<dialog class="confirmar-modal" data-modal-eliminar>
+  <div class="confirmar-caja">
+    <button type="button" class="cerrar" data-cerrar-eliminar aria-label="Cerrar">×</button>
+    <p class="kicker">Confirmación</p>
+    <h2 data-eliminar-titulo>Eliminar</h2>
+    <p data-eliminar-detalle>¿Seguro que quieres eliminar esto?</p>
+    <form method="post" data-eliminar-form class="acciones confirmar-acciones">
+      {% csrf_token %}
+      <button class="boton arcilla" type="submit">Sí, eliminar</button>
+      <button class="boton secundario" type="button" data-cerrar-eliminar>Cancelar</button>
+    </form>
+  </div>
+</dialog>
+<script>
+(() => {
+  const modal = document.querySelector("[data-modal-eliminar]");
+  if (!modal) return;
+  const form = modal.querySelector("[data-eliminar-form]");
+  const titulo = modal.querySelector("[data-eliminar-titulo]");
+  const detalle = modal.querySelector("[data-eliminar-detalle]");
+  const cerrar = () => modal.close();
+
+  modal.querySelectorAll("[data-cerrar-eliminar]").forEach((boton) => {
+    boton.addEventListener("click", cerrar);
+  });
+  modal.addEventListener("click", (evento) => {
+    if (evento.target === modal) cerrar();
+  });
+
+  document.addEventListener("click", (evento) => {
+    const boton = evento.target.closest("[data-confirmar-eliminar]");
+    if (!boton) return;
+    evento.preventDefault();
+    const url = boton.getAttribute("data-url") || boton.getAttribute("href");
+    if (!url) return;
+    form.action = url;
+    titulo.textContent = boton.getAttribute("data-titulo") || "Eliminar";
+    const nombre = boton.getAttribute("data-detalle") || "este elemento";
+    detalle.textContent = `¿Eliminar ${nombre}? Esta acción no se puede deshacer.`;
+    modal.showModal();
+  });
+})();
+</script>

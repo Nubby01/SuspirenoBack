@@ -1,0 +1,91 @@
+{% extends "panel/base.html" %}
+{% block contenido %}
+<div class="encabezado">
+  <h1>Cuentas</h1>
+</div>
+<p>Quienes se registran en la web quedan como clientes. El equipo de la pastelería se agrega aparte, con tu autorización.</p>
+
+<div class="encabezado">
+  <h2>Equipo</h2>
+</div>
+<div class="tabla-scroll">
+  <table>
+    <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th></th></tr></thead>
+    <tbody>
+      {% for cuenta in equipo %}
+        <tr>
+          <td>{{ cuenta.username }}</td>
+          <td>{{ cuenta.get_full_name }}</td>
+          <td>
+            {% if cuenta.rol == "administradora" %}
+              <span class="badge rol-admin">Administradora</span>
+            {% else %}
+              <span class="badge rol-ayudante">Ayudante</span>
+            {% endif %}
+            {% if cuenta.pk == user.pk %} · tu cuenta{% endif %}
+          </td>
+          <td>
+            {% if cuenta.rol == "ayudante" %}
+              <a class="boton cielo" href="{% url 'usuario_editar' cuenta.pk %}">Editar</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">No hay cuentas de equipo.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<section class="tarjeta">
+  <h2>Agregar ayudante</h2>
+  <p>Crea una cuenta provisoria con una clave temporal. Al iniciar sesión por primera vez, el ayudante deberá cambiar esa clave de inmediato. Confirma con tu clave de administradora.</p>
+  <form method="post" action="{% url 'usuario_crear_ayudante' %}" class="formulario form-producto">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form_ayudante %}
+        <div class="campo">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% if field.field.widget.input_type == "password" %}
+            <div class="campo-clave">
+              {{ field }}
+              {% include "parciales/ver_clave.html" %}
+            </div>
+          {% else %}
+            {{ field }}
+          {% endif %}
+          {% if field.help_text %}<p class="ayuda">{{ field.help_text }}</p>{% endif %}
+          {{ field.errors }}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="acciones form-acciones">
+      <button class="boton" type="submit">Crear ayudante</button>
+    </div>
+  </form>
+</section>
+
+<div class="encabezado">
+  <h2>Clientes</h2>
+</div>
+<p>Los clientes no pasan a ser ayudantes ni administradoras. Solo se eliminan si lo piden, con confirmación.</p>
+<div class="tabla-scroll">
+  <table>
+    <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th></th></tr></thead>
+    <tbody>
+      {% for cuenta in clientes %}
+        <tr>
+          <td>{{ cuenta.username }}</td>
+          <td>{{ cuenta.get_full_name }}</td>
+          <td><span class="badge rol-cliente">Cliente</span></td>
+          <td>
+            <button type="button" class="boton arcilla" data-confirmar-eliminar data-url="{% url 'usuario_eliminar' cuenta.pk %}" data-titulo="Eliminar cuenta" data-detalle="la cuenta de {{ cuenta.username }}">Eliminar</button>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">Todavía no hay clientes registrados.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

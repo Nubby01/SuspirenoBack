@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Catálogo · Suspiro Sureño{% endblock %}
+{% block cuerpo %}
+<div class="publico">
+  {% include "parciales/cabecera.html" %}
+  <main class="contenedor catalogo-pagina" id="catalogo">
+    {% include "mensajes.html" %}
+    <p class="kicker">Carta</p>
+    <h1>Catálogo</h1>
+    <div class="catalogo-layout">
+      <aside class="catalogo-lateral" aria-label="Categorías">
+        <details class="filtros-acordeon" data-filtros open>
+          <summary class="filtros-resumen">
+            <span>Categorías</span>
+            <span class="lateral-resultados">{{ productos|length }} resultados</span>
+          </summary>
+          <div class="filtros-cuerpo">
+            <form method="get" class="lateral-busca" action="{% url 'catalogo' %}">
+              <input type="search" name="q" value="{{ q }}" placeholder="Buscar en todo el catálogo..." aria-label="Buscar producto">
+            </form>
+            <a class="lateral-item {% if not categoria and not grupo %}activo{% endif %}" href="{% url 'catalogo' %}">Todas las categorías</a>
+            {% for grupo_item in grupos_nav %}
+              <details class="lateral-grupo" {% if grupo == grupo_item.etiqueta %}open{% endif %}{% for valor, etiqueta in grupo_item.hijos %}{% if categoria == valor %} open{% endif %}{% endfor %}>
+                <summary class="{% if grupo == grupo_item.etiqueta %}activo{% endif %}{% for valor, etiqueta in grupo_item.hijos %}{% if categoria == valor %} activo{% endif %}{% endfor %}">{{ grupo_item.etiqueta }}</summary>
+                <div class="lateral-hijos">
+                  <a class="{% if grupo == grupo_item.etiqueta and not categoria %}activo{% endif %}" href="?grupo={{ grupo_item.etiqueta|urlencode }}">Ver todo</a>
+                  {% for valor, etiqueta in grupo_item.hijos %}
+                    <a class="{% if categoria == valor %}activo{% endif %}" href="?categoria={{ valor|urlencode }}">{{ etiqueta }}</a>
+                  {% endfor %}
+                </div>
+              </details>
+            {% endfor %}
+          </div>
+        </details>
+      </aside>
+      <section class="grilla">
+        {% for producto in productos %}
+          {% include "parciales/producto.html" %}
+        {% empty %}
+          <p>No hay productos con ese criterio.</p>
+        {% endfor %}
+      </section>
+    </div>
+  </main>
+  {% include "parciales/pie.html" %}
+  {% include "parciales/modal_producto.html" %}
+  {% include "parciales/subir.html" %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/catalogo.js' %}?v=movil1"></script>
+{% endblock %}

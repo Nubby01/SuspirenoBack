@@ -1,0 +1,105 @@
+{% extends "panel/base.html" %}
+{% load dinero %}
+{% block titulo %}Reportes · Suspiro Sureño{% endblock %}
+{% block contenido %}
+<h1>Reportes del negocio</h1>
+<p>Las cifras salen de la base con <code>aggregate</code> y <code>annotate</code>, no de una suma hecha a mano en la plantilla.</p>
+<section class="metricas">
+  <article class="metrica"><span>Pedidos vigentes</span><strong>{{ resumen.pedidos }}</strong></article>
+  <article class="metrica"><span>Vendido</span><strong>{{ resumen.vendido|pesos }}</strong></article>
+  <article class="metrica"><span>Ticket promedio</span><strong>{{ resumen.ticket|pesos }}</strong></article>
+  <article class="metrica"><span>Saldo por cobrar</span><strong>{{ saldo|pesos }}</strong></article>
+</section>
+
+<section class="grafico">
+  <h2>Unidades pedidas</h2>
+  {% if grafico.etiquetas %}
+    {{ grafico|json_script:"grafico-datos" }}
+    <canvas id="grafico" height="140"></canvas>
+  {% else %}
+    <p>Todavía no hay pedidos confirmados para graficar.</p>
+  {% endif %}
+</section>
+
+<div class="tabla-scroll">
+  <table>
+    <caption>Pedidos por estado</caption>
+    <thead><tr><th>Estado</th><th>Cantidad</th><th>Monto</th></tr></thead>
+    <tbody>
+      {% for fila in por_estado %}
+        <tr>
+          <td><span class="badge {{ fila.clase }}">{{ fila.estado }}</span></td>
+          <td>{{ fila.cantidad }}</td>
+          <td>{{ fila.monto|pesos }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="tabla-scroll">
+  <table>
+    <caption>Venta por categoría</caption>
+    <thead><tr><th>Categoría</th><th>Unidades</th><th>Monto</th></tr></thead>
+    <tbody>
+      {% for fila in por_categoria %}
+        <tr><td>{{ fila.producto__categoria }}</td><td>{{ fila.unidades }}</td><td>{{ fila.monto|pesos }}</td></tr>
+      {% empty %}
+        <tr><td colspan="3">Sin ventas todavía.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h2>Stock bajo el mínimo</h2>
+<ul class="lista">
+  {% for insumo in insumos_bajos %}
+    <li class="fila"><a href="{% url 'insumo_detalle' insumo.pk %}">{{ insumo.nombre }}</a><span class="badge bajo">{{ insumo.stock_actual|cantidad }} / mín. {{ insumo.stock_minimo|cantidad }} {{ insumo.unidad_medida }}</span></li>
+  {% empty %}
+    <li>Ningún insumo está bajo el mínimo.</li>
+  {% endfor %}
+</ul>
+
+<h2>Compras por vencer en 3 días</h2>
+<ul class="lista">
+  {% for compra in por_vencer %}
+    <li class="fila">{{ compra.nombre }} ({{ compra.insumo.nombre }}) · {{ compra.fecha_vencimiento }}</li>
+  {% empty %}
+    <li>No hay compras por vencer.</li>
+  {% endfor %}
+</ul>
+
+<h2>Pedidos recientes</h2>
+<div class="tabla-scroll">
+  <table>
+    <thead><tr><th>Pedido</th><th>Cliente</th><th>Entrega</th><th>Estado</th><th>Total</th></tr></thead>
+    <tbody>
+      {% for pedido in recientes %}
+        <tr>
+          <td><a href="{% url 'pedido_detalle' pedido.pk %}">{{ pedido.pk }}</a></td>
+          <td>{{ pedido.cotizacion.cliente.nombre }}</td>
+          <td>{{ pedido.fecha_entrega }}</td>
+          <td><span class="badge {{ pedido.clase_estado }}">{{ pedido.estado }}</span></td>
+          <td>{{ pedido.monto_total|pesos }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5">Aún no hay pedidos.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if grafico.etiquetas %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script>
+  const datos = JSON.parse(document.getElementById("grafico-datos").textContent);
+  new Chart(document.getElementById("grafico"), {
+    type: "bar",
+    data: {
+      labels: datos.etiquetas,
+      datasets: [{ label: "Unidades", data: datos.unidades, backgroundColor: "#8d3d4a" }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+</script>
+{% endif %}
+{% endblock %}

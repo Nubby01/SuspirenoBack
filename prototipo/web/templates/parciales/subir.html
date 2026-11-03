@@ -1,0 +1,16 @@
+<button type="button" class="subir-inicio" data-subir hidden aria-label="Subir al inicio">↑</button>
+<script>
+(() => {
+  const boton = document.querySelector("[data-subir]");
+  if (!boton) return;
+  const umbral = 280;
+  const pintar = () => {
+    boton.hidden = window.scrollY < umbral;
+  };
+  window.addEventListener("scroll", pintar, { passive: true });
+  pintar();
+  boton.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
+</script>

@@ -1,0 +1,28 @@
+{% extends "panel/base.html" %}
+{% load dinero %}
+{% block contenido %}
+<p><a href="{% url 'cotizaciones' %}">← Volver a cotizaciones</a></p>
+<h1>Cotización {{ cotizacion.pk }}</h1>
+<p>{{ cotizacion.cliente.nombre }} · {{ cotizacion.cliente.telefono }}{% if cotizacion.cliente.direccion %} · {{ cotizacion.cliente.direccion }}{% endif %}</p>
+<p><span class="badge {{ cotizacion.clase_estado }}">{{ cotizacion.estado }}</span> {{ cotizacion.total|pesos }}</p>
+<ul class="lista">
+  {% for linea in cotizacion.lineas.all %}
+    <li class="fila"><span>{{ linea.cantidad }} x {{ linea.producto.nombre }}{% if linea.formato %} ({{ linea.formato }}){% endif %}</span><span>{{ linea.subtotal|pesos }}</span></li>
+  {% endfor %}
+</ul>
+<div class="acciones">
+  <a class="boton whatsapp" href="{{ whatsapp }}" target="_blank" rel="noopener">Abrir WhatsApp</a>
+  <a class="boton cielo" href="{% url 'cotizacion_editar' cotizacion.pk %}">Editar</a>
+  {% if user.es_administradora %}
+    <button type="button" class="boton arcilla" data-confirmar-eliminar data-url="{% url 'cotizacion_eliminar' cotizacion.pk %}" data-titulo="Eliminar cotización" data-detalle="cotización {{ cotizacion.pk }} de {{ cotizacion.cliente.nombre }}">Eliminar</button>
+  {% endif %}
+</div>
+{% if user.es_administradora and cotizacion.estado == "Enviada" %}
+  <form method="post" action="{% url 'cotizacion_convertir' cotizacion.pk %}" class="formulario tarjeta">
+    {% csrf_token %}
+    <h2>Convertir en pedido</h2>
+    {{ form.as_p }}
+    <button class="boton" type="submit">Crear pedido</button>
+  </form>
+{% endif %}
+{% endblock %}

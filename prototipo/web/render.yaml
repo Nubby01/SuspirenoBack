@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: suspireno
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: python manage.py migrate && python manage.py poblar && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: DATABASE_URL
+        sync: false
+      - key: WHATSAPP_NUMERO
+        sync: false
+      - key: SEED_PASSWORD
+        sync: false
+      - key: MEDIA_ROOT
+        value: /var/media
+    disk:
+      name: media
+      mountPath: /var/media
+      sizeGB: 1

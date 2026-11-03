@@ -1,0 +1,33 @@
+{% extends "panel/base.html" %}
+{% load dinero %}
+{% block contenido %}
+<div class="encabezado">
+  <h1>Insumos</h1>
+  {% if user.es_administradora %}
+    <a class="boton" href="{% url 'insumo_nuevo' %}">Nuevo insumo</a>
+  {% endif %}
+</div>
+<div class="tabla-scroll">
+  <table>
+    <thead><tr><th>Insumo</th><th>Stock</th><th>Mínimo</th><th></th></tr></thead>
+    <tbody>
+      {% for insumo in insumos %}
+        <tr>
+          <td><a href="{% url 'insumo_detalle' insumo.pk %}">{{ insumo.nombre }}</a></td>
+          <td>
+            {{ insumo.stock_actual|cantidad }} {{ insumo.unidad_medida }}
+            {% if insumo.requiere_reposicion %}<span class="badge critico">Stock crítico</span>{% endif %}
+          </td>
+          <td>{{ insumo.stock_minimo|cantidad }} {{ insumo.unidad_medida }}</td>
+          <td class="acciones">
+            {% if user.es_administradora %}
+              <a class="boton cielo" href="{% url 'insumo_editar' insumo.pk %}">Editar</a>
+              <button type="button" class="boton arcilla" data-confirmar-eliminar data-url="{% url 'insumo_eliminar' insumo.pk %}" data-titulo="Eliminar insumo" data-detalle="{{ insumo.nombre }}">Eliminar</button>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

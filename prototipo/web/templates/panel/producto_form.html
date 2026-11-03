@@ -1,0 +1,97 @@
+{% extends "panel/base.html" %}
+{% load dinero static %}
+{% block contenido %}
+<p><a href="{{ volver }}">← Volver a productos</a></p>
+<h1>{{ titulo }}</h1>
+<form method="post" enctype="multipart/form-data" class="formulario tarjeta form-producto">
+  {% csrf_token %}
+  <div class="form-grid">
+    <div class="campo">
+      <label for="{{ form.nombre.id_for_label }}">Nombre</label>
+      {{ form.nombre }}
+      {{ form.nombre.errors }}
+    </div>
+    <div class="campo">
+      <label for="{{ form.categoria.id_for_label }}">Categoría</label>
+      {{ form.categoria }}
+      {{ form.categoria.errors }}
+    </div>
+    <div class="campo">
+      <label for="{{ form.precio.id_for_label }}">Precio</label>
+      {{ form.precio }}
+      {{ form.precio.errors }}
+    </div>
+    <div class="campo">
+      <label for="{{ form.opciones.id_for_label }}">Opciones a elegir</label>
+      {{ form.opciones }}
+      {{ form.opciones.errors }}
+    </div>
+    <div class="campo campo-ancho">
+      <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
+      {{ form.descripcion }}
+      {{ form.descripcion.errors }}
+    </div>
+    <div class="campo">
+      <label for="{{ form.imagen.id_for_label }}">Foto</label>
+      {{ form.imagen }}
+      {{ form.imagen.errors }}
+      {% if object.url_foto %}
+        <p class="ayuda">Actual: {{ object.imagen_url|default:object.imagen }}</p>
+        <img class="miniatura previa" src="{{ object.url_foto }}" alt="">
+      {% endif %}
+    </div>
+    <div class="campo">
+      <label for="{{ form.imagen_url.id_for_label }}">Ruta de imagen estática</label>
+      {{ form.imagen_url }}
+      {{ form.imagen_url.errors }}
+    </div>
+    <div class="campo checks">
+      <label class="check-linea">{{ form.disponible }} Disponible en el catálogo</label>
+      <label class="check-linea">{{ form.agotado }} Marcar sin stock</label>
+    </div>
+  </div>
+  <div class="acciones form-acciones">
+    <button class="boton" type="submit">Guardar</button>
+    <a class="boton secundario" href="{{ volver }}">Volver</a>
+  </div>
+</form>
+{% if object %}
+<section class="tarjeta">
+  <h2>Receta</h2>
+  <ul class="lista">
+    {% for item in receta %}
+      <li class="fila">
+        <span>{{ item.cantidad|cantidad }} {{ item.insumo.unidad_medida }} de {{ item.insumo.nombre }}</span>
+        <span class="acciones">
+          <button type="button" class="boton arcilla" data-confirmar-eliminar data-url="{% url 'receta_quitar' item.pk %}" data-titulo="Quitar de la receta" data-detalle="{{ item.insumo.nombre }} de esta receta">Quitar</button>
+        </span>
+      </li>
+    {% empty %}
+      <li>Este producto todavía no descuenta insumos.</li>
+    {% endfor %}
+  </ul>
+  <form method="post" action="{% url 'receta_agregar' object.pk %}" class="formulario form-receta">
+    {% csrf_token %}
+    <div class="form-grid">
+      <div class="campo">
+        <label for="{{ receta_form.insumo.id_for_label }}">Insumo</label>
+        {{ receta_form.insumo }}
+        {{ receta_form.insumo.errors }}
+      </div>
+      <div class="campo">
+        <label for="{{ receta_form.unidad.id_for_label }}">Unidad de medida</label>
+        {{ receta_form.unidad }}
+        {{ receta_form.unidad.errors }}
+      </div>
+      <div class="campo">
+        <label for="{{ receta_form.cantidad.id_for_label }}">Cantidad</label>
+        {{ receta_form.cantidad }}
+        <p class="ayuda">Indica cuánto se usa por unidad de producto, en la medida elegida.</p>
+        {{ receta_form.cantidad.errors }}
+      </div>
+    </div>
+    <button class="boton secundario" type="submit">Agregar a la receta</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

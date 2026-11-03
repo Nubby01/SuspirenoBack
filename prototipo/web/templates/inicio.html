@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Suspiro Sureño{% endblock %}
+{% block cuerpo %}
+<div class="publico">
+  {% include "parciales/cabecera.html" %}
+  <section class="portada">
+    <div class="portada-carrusel" data-banner>
+      {% for foto in banner %}
+        <div class="portada-foto" style="background-image:url('{% static foto %}?v=banner')" {% if not forloop.first %}hidden{% endif %}></div>
+      {% endfor %}
+    </div>
+    <div class="portada-texto">
+      <p class="kicker">Pastelería en Punta Arenas</p>
+      <h1>Suspiro Sureño</h1>
+      <p>Repostería a pedido o lista para entrega inmediata. Elige en el catálogo o escribe por WhatsApp.</p>
+      <div class="acciones">
+        <a class="boton" href="{% url 'catalogo' %}">Ver catálogo</a>
+        <a class="boton" href="https://wa.me/56977578486?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">Pide aquí</a>
+      </div>
+    </div>
+  </section>
+  <main>
+    <div class="contenedor">{% include "mensajes.html" %}</div>
+    <section class="bloque">
+      <div class="contenedor">
+        <p class="kicker">Carta</p>
+        <h2>Productos destacados</h2>
+        <div class="grilla">
+          {% for producto in destacados %}
+            {% include "parciales/producto.html" %}
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    <section class="bloque">
+      <div class="contenedor">
+        <p class="kicker">Encargos</p>
+        <h2>Los más vendidos</h2>
+        <div class="grilla">
+          {% for producto in vendidos %}
+            {% include "parciales/producto.html" %}
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    <section class="bloque">
+      <div class="contenedor">
+        <p class="kicker">Quienes ya pidieron</p>
+        <h2>Reseñas</h2>
+        <div class="reseñas">
+          {% for resena in resenas %}
+            <article class="reseña revelar">
+              <p>{{ resena.texto }}</p>
+              <p class="kicker">{{ resena.nombre }}</p>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    <section class="bloque pide" id="pide">
+      <div class="contenedor">
+        <p class="kicker">Encargo</p>
+        <h2>Pide aquí</h2>
+        <p>Arma tu cotización en el catálogo o escríbenos por WhatsApp.</p>
+        <div class="acciones">
+          <a class="boton" href="{% url 'catalogo' %}">Ir al catálogo</a>
+          <a class="boton" href="{% url 'cotizacion' %}">Ver cotización</a>
+          <a class="boton" href="https://wa.me/56977578486?text=Hola%2C%20quiero%20hacer%20un%20pedido." target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  {% include "parciales/pie.html" %}
+  {% include "parciales/modal_producto.html" %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/catalogo.js' %}?v=movil1"></script>
+{% endblock %}

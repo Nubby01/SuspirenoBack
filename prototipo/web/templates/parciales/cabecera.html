@@ -1,0 +1,51 @@
+{% load static %}
+<header class="masthead" data-masthead>
+  <a class="marca" href="{% url 'inicio' %}">
+    <img class="logo" src="{% static 'imagenes/logo.png' %}" alt="Suspiro Sureño">
+    <span class="marca-nombre">Suspiro Sureño</span>
+  </a>
+  <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="nav-principal">
+    Menú
+  </button>
+  <nav class="acciones" id="nav-principal" data-nav-panel aria-label="Principal">
+    <details class="nav-grupo" data-menu>
+      <summary class="boton secundario">Catálogo</summary>
+      <div class="nav-menu">
+        <a href="{% url 'catalogo' %}">Todas las categorías</a>
+        {% for grupo in grupos_nav %}
+          <a href="{% url 'catalogo' %}?grupo={{ grupo.etiqueta|urlencode }}">{{ grupo.etiqueta }}</a>
+        {% endfor %}
+      </div>
+    </details>
+    <a class="boton secundario" href="{% url 'cotizacion' %}" data-carrito-cantidad="{{ carrito_cantidad }}">Cotización ({{ carrito_cantidad }})</a>
+    {% if user.is_authenticated %}
+      {% if user.entra_al_panel %}
+        <a class="boton" href="{% url 'reportes' %}">Ir al panel</a>
+      {% else %}
+        <details class="nav-grupo" data-menu>
+          <summary class="boton secundario">Mi cuenta</summary>
+          <div class="nav-menu">
+            <a href="{% url 'mi_cuenta' %}">Ver mi cuenta</a>
+            <a href="{% url 'mi_cuenta' %}#cotizaciones">Mis cotizaciones</a>
+            <a href="{% url 'mi_cuenta' %}#pedidos">Mis pedidos</a>
+            {% if ultima_cotizacion %}
+              <a href="{% url 'cotizacion_detalle_mia' ultima_cotizacion %}">Ver detalles de mi cotización</a>
+            {% endif %}
+          </div>
+        </details>
+      {% endif %}
+      <form method="post" action="{% url 'logout' %}" class="nav-salir">
+        {% csrf_token %}
+        <button class="boton secundario" type="submit">Salir</button>
+      </form>
+    {% else %}
+      <details class="nav-grupo" data-menu>
+        <summary class="boton secundario">Ingresar</summary>
+        <div class="nav-menu">
+          <a href="{% url 'login' %}">Ingresar</a>
+          <a href="{% url 'registro' %}">Crear cuenta</a>
+        </div>
+      </details>
+    {% endif %}
+  </nav>
+</header>

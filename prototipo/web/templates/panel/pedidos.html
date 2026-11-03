@@ -1,0 +1,34 @@
+{% extends "panel/base.html" %}
+{% load dinero %}
+{% block contenido %}
+<div class="encabezado">
+  <h1>Pedidos</h1>
+  {% if user.es_administradora %}
+    <a class="boton" href="{% url 'pedido_nuevo' %}">Agregar pedido</a>
+  {% endif %}
+</div>
+<div class="tabla-scroll">
+  <table>
+    <thead><tr><th>N°</th><th>Cliente</th><th>Entrega</th><th>Canal</th><th>Estado</th><th>Total</th><th>Saldo</th><th></th></tr></thead>
+    <tbody>
+      {% for pedido in pedidos %}
+        <tr>
+          <td><a href="{% url 'pedido_detalle' pedido.pk %}">{{ pedido.pk }}</a></td>
+          <td>{{ pedido.cotizacion.cliente.nombre }}</td>
+          <td>{{ pedido.fecha_entrega }}</td>
+          <td>{{ pedido.canal_despacho }}</td>
+          <td><span class="badge {{ pedido.clase_estado }}">{{ pedido.estado }}</span></td>
+          <td>{{ pedido.monto_total|pesos }}</td>
+          <td>{{ pedido.saldo|pesos }}</td>
+          <td class="acciones">
+            <a class="boton cielo" href="{% url 'pedido_editar' pedido.pk %}">Editar</a>
+            <button type="button" class="boton arcilla" data-confirmar-eliminar data-url="{% url 'pedido_eliminar' pedido.pk %}" data-titulo="Eliminar pedido" data-detalle="pedido {{ pedido.pk }} de {{ pedido.cotizacion.cliente.nombre }}">Eliminar</button>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="8">Todavía no hay pedidos.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

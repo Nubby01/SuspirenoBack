@@ -1,0 +1,119 @@
+{% load dinero %}
+<article class="tarjeta producto revelar{% if producto.categoria == 'Día de Pascua' %} retrato{% endif %}" data-producto
+  data-nombre="{{ producto.nombre }}"
+  data-descripcion="{{ producto.descripcion }}"
+  data-agotado="{% if producto.sin_stock %}1{% else %}0{% endif %}"
+  {% if producto.categoria == 'Día de Pascua' %}data-retrato="1"{% endif %}
+  {% with ops=producto.lista_opciones %}{% if ops %}data-opcion-etiqueta="{{ ops.etiqueta }}" data-opciones="{{ ops.elecciones|join:'|' }}"{% endif %}{% endwith %}>
+  {% with fotos=producto.fotos %}
+    {% if fotos|length > 1 %}
+      <div class="carrusel" data-carrusel data-abrir>
+        {% for foto in fotos %}
+          <img src="{{ foto }}?v=carrusel" alt="{{ producto.nombre }}" {% if not forloop.first %}hidden{% endif %}>
+        {% endfor %}
+        <button type="button" class="flecha prev" data-prev aria-label="Foto anterior de {{ producto.nombre }}">‹</button>
+        <button type="button" class="flecha next" data-next aria-label="Foto siguiente de {{ producto.nombre }}">›</button>
+        <div class="puntos">
+          {% for foto in fotos %}
+            <button type="button" data-punto aria-label="Foto {{ forloop.counter }} de {{ producto.nombre }}" {% if forloop.first %}aria-current="true"{% endif %}></button>
+          {% endfor %}
+        </div>
+      </div>
+    {% elif fotos %}
+      <button type="button" class="foto-abrir" data-abrir aria-label="Ver {{ producto.nombre }}">
+        <img src="{{ fotos.0 }}?v=carrusel" alt="{{ producto.nombre }}">
+      </button>
+    {% else %}
+      <div class="sin-imagen" data-abrir role="button" tabindex="0" aria-label="Ver {{ producto.nombre }}"></div>
+    {% endif %}
+  {% endwith %}
+  {% if producto.sin_stock %}<span class="sello critico">Sin stock</span>{% endif %}
+  <div class="cuerpo">
+    <p class="rubro">{{ producto.get_categoria_display }}</p>
+    <h2>{{ producto.nombre }}</h2>
+    <details class="ficha-detalle">
+      <summary>Ver descripción</summary>
+      <p class="detalle">{{ producto.descripcion }}</p>
+      {% with variantes=producto.variantes.all %}
+        {% if variantes %}
+          <p class="precio-ficha">Desde {{ variantes.0.precio|pesos }}</p>
+        {% else %}
+          <p class="precio-ficha">{{ producto.precio|pesos }}</p>
+        {% endif %}
+      {% endwith %}
+    </details>
+    <form method="post" action="{% url 'carrito_agregar' producto.pk %}" class="compra" data-compra>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      {% with variantes=producto.variantes.all %}
+        {% if variantes|length > 1 %}
+          <select class="formato" name="variante" data-formatos aria-label="Formato de {{ producto.nombre }}">
+            {% for variante in variantes %}
+              <option value="{{ variante.pk }}" data-texto="{{ variante.precio|pesos }}">{{ variante.formato }} — {{ variante.precio|pesos }}</option>
+            {% endfor %}
+          </select>
+        {% elif variantes %}
+          <input type="hidden" name="variante" value="{{ variantes.0.pk }}">
+        {% endif %}
+      {% endwith %}
+      <input type="hidden" name="cantidad" value="1">
+      <div class="acciones">
+        <button class="boton boton-agregar" type="submit" data-agregar-rapido {% if producto.sin_stock %}disabled{% endif %}{% if producto.lista_opciones %} data-requiere-opcion{% endif %}>Agregar</button>
+      </div>
+    </form>
+  </div>
+  <template data-fotos>
+    {% for foto in producto.fotos %}
+      <img src="{{ foto }}?v=carrusel" alt="{{ producto.nombre }}">
+    {% endfor %}
+  </template>
+  <template data-form-modal>
+    <form method="post" action="{% url 'carrito_agregar' producto.pk %}" class="compra modal-compra">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      {% if producto.sin_stock %}
+        <p class="modal-sin-stock">Sin stock. Este producto no se puede agregar ahora.</p>
+      {% else %}
+        {% with variantes=producto.variantes.all %}
+          {% if variantes|length > 1 %}
+            <label class="formato">Formato
+              <select name="variante" data-formatos>
+                {% for variante in variantes %}
+                  <option value="{{ variante.pk }}" data-texto="{{ variante.precio|pesos }}">{{ variante.formato }} — {{ variante.precio|pesos }}</option>
+                {% endfor %}
+              </select>
+            </label>
+          {% elif variantes %}
+            <input type="hidden" name="variante" value="{{ variantes.0.pk }}">
+            <p class="formato-fijo">{{ variantes.0.formato }}</p>
+          {% endif %}
+        {% endwith %}
+        {% with ops=producto.lista_opciones %}
+          {% if ops %}
+            <fieldset class="opciones-check">
+              <legend>Personalizar producto</legend>
+              <p class="ayuda">{{ ops.etiqueta }} a elección</p>
+              {% for eleccion in ops.elecciones %}
+                <label class="check-opcion">
+                  <input type="radio" name="opcion" value="{{ eleccion }}" required>
+                  <span>{{ eleccion }}</span>
+                </label>
+              {% endfor %}
+            </fieldset>
+          {% endif %}
+        {% endwith %}
+        <p class="precio" data-precio-visible>
+          {% with variantes=producto.variantes.all %}
+            {% if variantes %}{{ variantes.0.precio|pesos }}{% else %}{{ producto.precio|pesos }}{% endif %}
+          {% endwith %}
+        </p>
+        <div class="acciones modal-acciones">
+          <label class="campo-cantidad">Cantidad
+            <input type="number" name="cantidad" value="1" min="1" max="100" aria-label="Cantidad">
+          </label>
+          <button class="boton boton-agregar" type="submit">Agregar</button>
+        </div>
+      {% endif %}
+    </form>
+  </template>
+</article>

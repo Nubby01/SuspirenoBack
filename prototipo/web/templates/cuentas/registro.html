@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block titulo %}Crear cuenta · Suspiro Sureño{% endblock %}
+{% block cuerpo %}
+<div class="publico">
+  {% include "parciales/cabecera.html" %}
+  <main class="escena">
+    <section class="escena-foto foto-cuenta" role="img" aria-label="Alfajor brownie manjar"></section>
+    <section class="escena-texto">
+      <p class="kicker">Tu cuenta</p>
+      <h1>Crear cuenta</h1>
+      <p class="escena-bajada">Con tu nombre de usuario puedes volver a ver lo que cotizaste.</p>
+      <form method="post" class="formulario acceso revelar">
+        {% csrf_token %}
+        {% include "mensajes.html" %}
+        <div class="campo">
+          <label for="{{ form.nombre.id_for_label }}">Tu nombre</label>
+          {{ form.nombre }}
+          {{ form.nombre.errors }}
+        </div>
+        <div class="campo">
+          <label for="{{ form.username.id_for_label }}">Nombre de usuario</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </div>
+        <div class="campo">
+          <label for="{{ form.password1.id_for_label }}">Clave</label>
+          <div class="campo-clave">
+            {{ form.password1 }}
+            {% include "parciales/ver_clave.html" %}
+          </div>
+          {{ form.password1.errors }}
+        </div>
+        <div class="campo">
+          <label for="{{ form.password2.id_for_label }}">Repite la clave</label>
+          <div class="campo-clave">
+            {{ form.password2 }}
+            {% include "parciales/ver_clave.html" %}
+          </div>
+          {{ form.password2.errors }}
+        </div>
+        <div class="acciones">
+          <button class="boton" type="submit">Crear cuenta</button>
+          <a class="boton secundario" href="{% url 'login' %}">Ya tengo cuenta</a>
+        </div>
+      </form>
+    </section>
+  </main>
+  {% include "parciales/pie.html" %}
+</div>
+{% endblock %}
