@@ -20,13 +20,26 @@ if not SECRET_KEY:
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 
-render_url = os.environ.get("RENDER_EXTERNAL_URL", "").rstrip("/")
-if render_url:
-    from urllib.parse import urlparse
-    CSRF_TRUSTED_ORIGINS.append(render_url)
-    host = urlparse(render_url).hostname
+from urllib.parse import urlparse
+
+for env_url in (
+    os.environ.get("RENDER_EXTERNAL_URL", ""),
+    os.environ.get("VERCEL_PROJECT_PRODUCTION_URL", ""),
+    os.environ.get("VERCEL_URL", ""),
+):
+    env_url = env_url.strip().rstrip("/")
+    if not env_url:
+        continue
+    if not env_url.startswith("http"):
+        env_url = f"https://{env_url}"
+    if env_url not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(env_url)
+    host = urlparse(env_url).hostname
     if host and host not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(host)
+
+if os.environ.get("VERCEL") and ".vercel.app" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(".vercel.app")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
