@@ -678,10 +678,10 @@ input::placeholder, textarea::placeholder { color: #b7aea6; font-weight: 400; }
   transition: transform .6s ease;
 }
 .escena:hover .escena-foto { transform: scale(1.04); }
-.foto-donas { background-image: url("../imagenes/donas-rellenas.png"); }
-.foto-cuenta { background-image: url("../imagenes/alfajor-brownie-manjar.png"); }
-.foto-cotiza { background-image: url("../imagenes/berlines.png"); }
-.foto-mias { background-image: url("../imagenes/galletas-glaseadas-1.png"); }
+.foto-donas { background-image: url("../imagenes/donas-rellenas.jpg"); }
+.foto-cuenta { background-image: url("../imagenes/alfajor-brownie-manjar.jpg"); }
+.foto-cotiza { background-image: url("../imagenes/berlines.jpg"); }
+.foto-mias { background-image: url("../imagenes/galletas-glaseadas-1.jpg"); }
 .escena-texto {
   padding: 48px 56px;
   display: flex;

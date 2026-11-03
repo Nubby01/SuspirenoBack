@@ -28,7 +28,7 @@ PRODUCTOS = [
         "categoria": "Tortas",
         "precio": 25000,
         "disponible": True,
-        "imagen_url": "imagenes/torta-frutillas.png",
+        "imagen_url": "imagenes/torta-frutillas.jpg",
         "receta": {"Harina de trigo": 0.5, "Azúcar": 0.3, "Huevos": 6, "Frutilla": 0.4, "Crema de leche": 0.3},
     },
     {
@@ -37,7 +37,7 @@ PRODUCTOS = [
         "categoria": "Tortas",
         "precio": 22000,
         "disponible": True,
-        "imagen_url": "imagenes/torta-chocolate.png",
+        "imagen_url": "imagenes/torta-chocolate.jpg",
         "receta": {"Harina de trigo": 0.45, "Azúcar": 0.28, "Huevos": 5, "Chocolate cobertura": 0.4},
     },
     {
@@ -46,7 +46,7 @@ PRODUCTOS = [
         "categoria": "Cupcakes",
         "precio": 8000,
         "disponible": True,
-        "imagen_url": "imagenes/cupcake.png",
+        "imagen_url": "imagenes/cupcake.jpg",
         "receta": {"Harina de trigo": 0.08, "Azúcar": 0.06, "Huevos": 1, "Frutilla": 0.05, "Mantequilla": 0.04},
     },
     {
@@ -64,7 +64,7 @@ PRODUCTOS = [
         "categoria": "Galletas",
         "precio": 6000,
         "disponible": True,
-        "imagen_url": "imagenes/galletas-avena.png",
+        "imagen_url": "imagenes/galletas-avena.jpg",
         "receta": {"Harina de trigo": 0.2, "Azúcar": 0.1, "Mantequilla": 0.08},
     },
 ]
