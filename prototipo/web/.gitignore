@@ -8,3 +8,6 @@ media/
 
 .vercel
 .env*
+body.txt
+cookies.txt
+headers.txt

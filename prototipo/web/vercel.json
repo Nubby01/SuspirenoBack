@@ -4,7 +4,7 @@
     "suspireno": {
       "root": ".",
       "entrypoint": "config/wsgi.py",
-      "buildCommand": "pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py poblar && python manage.py collectstatic --noinput"
+      "buildCommand": "pip install -r requirements.txt && export DATABASE_URL=\"${DATABASE_URL_UNPOOLED:-$DATABASE_URL}\" && python manage.py migrate --noinput && python manage.py poblar && python manage.py collectstatic --noinput"
     }
   },
   "rewrites": [

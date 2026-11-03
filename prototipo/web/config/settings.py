@@ -83,12 +83,20 @@ TEMPLATES = [
     }
 ]
 
+# Neon/Postgres vía DATABASE_URL; SQLite solo en desarrollo local.
+_db_url = os.environ.get("DATABASE_URL", "").strip()
+_on_vercel = bool(os.environ.get("VERCEL"))
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
+        default=_db_url or f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        # En serverless no reutilizar conexiones; Neon cierra idle ~5 min.
+        conn_max_age=0 if (_on_vercel or _db_url) else 600,
+        conn_health_checks=True,
+        ssl_require=bool(_db_url and _db_url.startswith(("postgres://", "postgresql://"))),
     )
 }
+if DATABASES["default"].get("ENGINE", "").endswith("postgresql"):
+    DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
